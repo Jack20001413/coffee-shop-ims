@@ -8,7 +8,7 @@ public class Ingredient
 
     public string Sku { get; set; } = string.Empty;
 
-    public float Quantity { get; set; }
+    public int Quantity { get; set; }
 
     public DateTime CreatedAt { get; set; } = DateTime.Now;
 
