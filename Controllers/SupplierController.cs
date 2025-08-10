@@ -31,14 +31,7 @@ namespace coffee_shop_ims.Controllers
             supplier.UpdatedAt = DateTime.Now;
             _context.Suppliers.Add(supplier);
 
-            try
-            {
-                _context.SaveChanges();
-            }
-            catch
-            {
-                return StatusCode(500, "Server unable to add new supplier");
-            }
+            _context.SaveChanges();
 
             return RedirectToAction(nameof(Index));
         }
