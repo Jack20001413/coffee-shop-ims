@@ -1,0 +1,36 @@
+name: Basic Workflow
+
+on: 
+  workflow_dispatch:
+    inputs:
+      userName:
+        type: text
+        description: Account name of the current logged in user
+        required: true
+        default: nobody
+      isAdmin:
+        type: boolean
+        description: Are you the server admin?
+        required: true
+        default: false
+      tasks:
+        type: choice
+        description: Tasks to perform in server
+        required: false
+        options:
+          - Check server's health
+          - Debug network packages
+          - Build applications
+          - Deploy applications to cloud
+        default: Check server's health
+
+jobs:
+  hack-server:
+    runs-on: ubuntu-latest
+    name: Hack the server
+    steps:
+      - name: Hacking now....
+        run: |
+          echo "Are you admin? ${{ inputs.isAdmin }}"
+          echo "To user ${{ inputs.userName }}, I am now hacking to the server using your account to ${{ inputs.tasks }}!"
+          
