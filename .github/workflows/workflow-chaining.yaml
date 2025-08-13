@@ -24,6 +24,8 @@ jobs:
     steps:
     - name: Say hello
       run: echo "Hello from Job 2 -_-"
+    - name: Meet error
+      run: echo "Meet error ❌" && exit 1
 
   job3:
     name: Job 3
