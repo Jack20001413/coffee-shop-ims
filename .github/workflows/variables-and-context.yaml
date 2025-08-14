@@ -1,0 +1,63 @@
+name: Variables and Contexts
+
+on: 
+  workflow_dispatch:
+    inputs:
+      personToHello:
+        type: string
+        description: Who does this workflow have to say Hello to?
+        required: true
+
+env:
+  ENV1: workflow-var-1
+  ENV2: workflow-var-2
+  ENV3: workflow-var-3
+
+jobs:
+  job1:
+    name: Executing Job 1...
+    runs-on: ubuntu-latest
+    steps:
+    - name: Dump Hello World
+      env:
+        GITHUB_CONTEXT: ${{ toJson(github) }}
+      run: echo "Hello $GITHUB_CONTEXT"
+
+  job2:
+    name: Executing Job 2...
+    runs-on: ubuntu-latest
+    steps:
+    - name: Set ouput variable 1
+      id: step1
+      run: echo "job2-var-1=Hello" >> $GITHUB_OUTPUT
+    - name: Set ouput variable 2
+      id: step2
+      run: echo "job2-var-2=${{ inputs.personToHello }}" >> $GITHUB_OUTPUT
+    outputs:
+      output1: ${{ steps.step1.outputs.job2-var-1 }}
+      output2: ${{ steps.step2.outputs.job2-var-2 }}
+
+  job3:
+    name: Executing Job 3...
+    runs-on: ubuntu-latest
+    steps:
+    - name: Dump variables from previous job
+      run: |
+        echo "${{ needs.job2.outputs.job2-var-1}} ${{ needs.job2.outputs.job2-var-2}}"
+
+  job4: 
+    name: Executing Job 4...
+    runs-on: ubuntu-latest
+    env:
+      ENV2: job-var-2
+      ENV3: job-var-3
+    steps:
+    - name: Dump the environment variables
+      run: |
+        echo $ENV1
+        echo ${{ env.ENV1 }}
+
+        echo $ENV2
+        echo $ENV3
+      env:
+        ENV1: step-var-1
