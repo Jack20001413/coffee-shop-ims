@@ -45,7 +45,7 @@ jobs:
     steps:
     - name: Dump variables from previous job
       run: |
-        echo "${{ needs.job2.outputs.job2-var-1}} ${{ needs.job2.outputs.job2-var-2}}"
+        echo "${{ needs.job2.outputs.output1 }} ${{ needs.job2.outputs.output2 }}"
 
   job4: 
     name: Executing Job 4...
