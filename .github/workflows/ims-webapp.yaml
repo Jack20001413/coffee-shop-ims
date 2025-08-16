@@ -26,7 +26,7 @@ jobs:
               run: dotnet restore ${{ github.workspace }} --no-cache
 
             - name: Build project
-              run: dotnet build ${{ github.workspace }} --no-restore
+              run: dotnet build ${{ github.workspace }} --no-restore -c Release
 
             - name: Check file structure
               run: ls -la ${{ github.workspace }} | find obj
