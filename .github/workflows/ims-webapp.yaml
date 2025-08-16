@@ -33,3 +33,4 @@ jobs:
 
             - name: Publish project
               run: dotnet publish ${{ github.workspace }} --no-build --output ${{ github.workspace }}/.out
+
