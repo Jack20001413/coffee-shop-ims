@@ -26,7 +26,7 @@ jobs:
               run: ls -la ${{ github.workspace }}
 
             - name: Restore project's dependencies
-              run: dotnet restore '${{ github.workspace }}/**/*.csproj' --no-cache
+              run: dotnet restore "${{ github.workspace }}/**/*.csproj" --no-cache
 
             - name: Build project
               run: dotnet build ${{ github.workspace }}/**/*.sln --no-restore
