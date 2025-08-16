@@ -1,0 +1,32 @@
+name: Inventory Management System
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+    build:
+        name: Build application
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v5
+              with:
+                fetch-depth: 0
+                clean: true
+
+            - name: Install .NET Core SDK
+              uses: actions/setup-dotnet@v4
+              with:
+                dotnet-version: '9.x.x'
+
+            - name: Restore project's dependencies
+              run: dotnet restore ${{ github.workspace }}/**/*.csproj --no-cache
+
+            - name: Build project
+              run: dotnet build ${{ github.workspace }}/**/*.sln --no-restore
+
+            - name: Publish project
+              run: dotnet publish ${{ github.workspace }}/**/*.csproj --no-build --output .out
