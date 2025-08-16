@@ -29,7 +29,8 @@ jobs:
               run: dotnet build ${{ github.workspace }} --no-restore
 
             - name: Check file structure
-              run: ls -la ${{ github.workspace }}/obj/Release/net9.0/ 
+              run: ls -la ${{ github.workspace }} | find obj
+              # run: ls -la ${{ github.workspace }}/obj/Release/net9.0
 
             - name: Publish project
               run: dotnet publish ${{ github.workspace }} --no-build --output ${{ github.workspace }}/.out
