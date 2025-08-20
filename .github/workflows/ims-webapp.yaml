@@ -46,6 +46,7 @@ jobs:
         with:
           name: dotnet-app
           path: ${{ github.workspace }}/.out
+          include-hidden-files: true
 
   deploy:
     name: Deploy application
