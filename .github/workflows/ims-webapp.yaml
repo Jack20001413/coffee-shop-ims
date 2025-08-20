@@ -38,6 +38,9 @@ jobs:
       - name: Publish project
         run: dotnet publish ${{ github.workspace }} --no-build --output ${{ github.workspace }}/.out
 
+      - name: Debug file structure
+        run: ls -la ${{ github.workspace }}/.out
+
       - name: Upload pipeline artifact
         uses: actions/upload-artifact@v4
         with:
