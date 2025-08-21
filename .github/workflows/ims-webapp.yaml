@@ -54,7 +54,7 @@ jobs:
     permissions:
       id-token: write
       contents: none
-    environment: DEV
+    # environment: DEV
     needs: 
     - build
     steps:
