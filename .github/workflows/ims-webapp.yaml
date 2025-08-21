@@ -69,6 +69,7 @@ jobs:
              echo "This is environment secret
             else
              echo "This is repository secret"
+            fi
 
       - name: Login to Azure
         uses: azure/login@v2.3.0
