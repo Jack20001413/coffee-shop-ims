@@ -53,6 +53,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       id-token: write
+      contents: none
+    environment: DEV
     needs: 
     - build
     steps:
@@ -60,6 +62,13 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: dotnet-app
+
+      - name: Check if secret is environment secret
+        run: |
+            if [[ ${{ secrets.IS_ENV_SECRET == "true" ]]; then
+             echo "This is environment secret
+            else
+             echo "This is repository secret"
 
       - name: Login to Azure
         uses: azure/login@v2.3.0
