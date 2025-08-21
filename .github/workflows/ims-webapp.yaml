@@ -65,7 +65,7 @@ jobs:
 
       - name: Check if secret is environment secret
         run: |
-            if [[ ${{ secrets.IS_ENV_SECRET == "true" ]]; then
+            if [[ ${{ secrets.IS_ENV_SECRET }} == "true" ]]; then
              echo "This is environment secret
             else
              echo "This is repository secret"
