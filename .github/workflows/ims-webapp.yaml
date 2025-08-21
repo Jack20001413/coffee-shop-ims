@@ -65,11 +65,13 @@ jobs:
 
       - name: Check if secret is environment secret
         run: |
-            if [[ "${{ secrets.IS_ENV_SECRET }}" == "true" ]]; then
+            if [[ "$IS_ENV_SECRET" == "true" ]]; then
              echo "This is environment secret
             else
              echo "This is repository secret"
             fi
+        env:
+          IS_ENV_SECRET: ${{ secrets.IS_ENV_SECRET }}
 
       - name: Login to Azure
         uses: azure/login@v2.3.0
