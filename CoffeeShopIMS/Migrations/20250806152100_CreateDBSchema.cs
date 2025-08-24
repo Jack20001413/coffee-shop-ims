@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace coffee_shop_ims.Migrations
+namespace CoffeeShopIMS.Migrations
 {
     /// <inheritdoc />
     public partial class CreateDBSchema : Migration

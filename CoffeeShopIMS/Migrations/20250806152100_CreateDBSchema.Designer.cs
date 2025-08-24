@@ -5,11 +5,11 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using coffee_shop_ims.Data;
+using CoffeeShopIMS.Data;
 
 #nullable disable
 
-namespace coffee_shop_ims.Migrations
+namespace CoffeeShopIMS.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
     [Migration("20250806152100_CreateDBSchema")]

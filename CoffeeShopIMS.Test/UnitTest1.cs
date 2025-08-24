@@ -1,4 +1,4 @@
-﻿namespace coffee_shop_ims.Test;
+﻿namespace CoffeeShopIMS.Test;
 
 public class UnitTest1
 {

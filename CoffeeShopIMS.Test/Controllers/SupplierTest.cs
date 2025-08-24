@@ -1,6 +1,6 @@
 using System;
 
-namespace coffee_shop_ims.Test.Controllers;
+namespace CoffeeShopIMS.Test.Controllers;
 
 public class SupplierTest
 {

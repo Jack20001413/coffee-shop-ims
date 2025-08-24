@@ -1,8 +1,8 @@
 using System;
-using coffee_shop_ims.Models;
+using CoffeeShopIMS.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace coffee_shop_ims.Data;
+namespace CoffeeShopIMS.Data;
 
 public class ApplicationDbContext : DbContext
 {

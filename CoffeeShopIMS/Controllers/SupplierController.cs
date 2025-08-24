@@ -1,8 +1,8 @@
-using coffee_shop_ims.Data;
-using coffee_shop_ims.Models;
+using CoffeeShopIMS.Data;
+using CoffeeShopIMS.Models;
 using Microsoft.AspNetCore.Mvc;
 
-namespace coffee_shop_ims.Controllers
+namespace CoffeeShopIMS.Controllers
 {
     public class SupplierController : Controller
     {
