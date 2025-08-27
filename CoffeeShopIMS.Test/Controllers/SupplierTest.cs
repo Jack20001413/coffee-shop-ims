@@ -41,9 +41,10 @@ public class SupplierTest
     {
         // Arrange
         mockRepository.Setup(db => db.Create(It.IsAny<Supplier>()));
+        var fakeSupplier = new Supplier { Id = 1, Name = "Amazon", Address = "US", CreatedAt = DateTime.Now, UpdatedAt = DateTime.Now };
 
         // Act
-        var result = _supplierController.Create(new Supplier { Id = 1, Name = "Amazon", Address = "US", CreatedAt = DateTime.Now, UpdatedAt = DateTime.Now });
+        var result = _supplierController.Create(fakeSupplier);
 
         // Assert
         result.Should().BeAssignableTo<IActionResult>();
