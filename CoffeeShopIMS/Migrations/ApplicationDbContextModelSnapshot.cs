@@ -3,20 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using coffee_shop_ims.Data;
+using CoffeeShopIMS.Data;
 
 #nullable disable
 
-namespace coffee_shop_ims.Migrations
+namespace CoffeeShopIMS.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250806152100_CreateDBSchema")]
-    partial class CreateDBSchema
+    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

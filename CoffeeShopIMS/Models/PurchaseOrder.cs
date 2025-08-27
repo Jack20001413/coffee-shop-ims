@@ -1,6 +1,6 @@
 using System;
 
-namespace coffee_shop_ims.Models;
+namespace CoffeeShopIMS.Models;
 
 public class PurchaseOrder
 {

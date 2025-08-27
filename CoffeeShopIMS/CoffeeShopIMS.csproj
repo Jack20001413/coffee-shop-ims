@@ -4,7 +4,6 @@
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <RootNamespace>coffee_shop_ims</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
@@ -14,7 +13,6 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <Watch Remove=".git" />
   </ItemGroup>
 
 </Project>

@@ -1,21 +1,21 @@
-using coffee_shop_ims.Data;
-using coffee_shop_ims.Models;
+using CoffeeShopIMS.Models;
+using CoffeeShopIMS.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
-namespace coffee_shop_ims.Controllers
+namespace CoffeeShopIMS.Controllers
 {
     public class SupplierController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly ISupplierRepository _supplierRepository;
 
-        public SupplierController(ApplicationDbContext repo)
+        public SupplierController(ISupplierRepository supplierRepository)
         {
-            _context = repo;
+            _supplierRepository = supplierRepository;
         }
 
         public IActionResult Index()
         {
-            List<Supplier> suppliers = _context.Suppliers.ToList();
+            List<Supplier> suppliers = _supplierRepository.GetAll();
             return View(suppliers);
         }
 
@@ -29,9 +29,7 @@ namespace coffee_shop_ims.Controllers
         {
             supplier.CreatedAt = DateTime.Now;
             supplier.UpdatedAt = DateTime.Now;
-            _context.Suppliers.Add(supplier);
-
-            _context.SaveChanges();
+            _supplierRepository.Create(supplier);
 
             return RedirectToAction(nameof(Index));
         }

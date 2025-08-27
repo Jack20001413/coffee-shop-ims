@@ -1,4 +1,4 @@
-using coffee_shop_ims.Data;
+using CoffeeShopIMS.Data;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);

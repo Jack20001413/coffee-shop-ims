@@ -2,7 +2,7 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
 
-namespace coffee_shop_ims.Models;
+namespace CoffeeShopIMS.Models;
 
 [PrimaryKey(nameof(OrderId), nameof(IngredientId))]
 public class PurchaseOrderDetail
