@@ -9,4 +9,5 @@ public interface ISupplierRepository
     public void Create(Supplier supplier);
     public Supplier? GetById(int id);
     public void Update(Supplier supplier);
+    public void Delete(Supplier supplier);
 }

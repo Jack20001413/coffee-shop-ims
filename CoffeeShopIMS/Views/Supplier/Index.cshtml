@@ -43,7 +43,10 @@
                             <tr>
                                 <td>@supplier.Name</td>
                                 <td>@supplier.Address</td>
-                                <td>Update & Delete</td>
+                                <td>
+                                    <a asp-controller="Supplier" asp-action="Edit" asp-route-id="@supplier.Id" class="btn btn-secondary">Update</a>
+                                    <a asp-controller="Supplier" asp-action="Delete" class="btn btn-danger">Delete</a>
+                                </td>
                             </tr>
                         }
                     }

@@ -34,4 +34,10 @@ public class SupplierRepository : ISupplierRepository
         _context.Suppliers.Update(supplier);
         _context.SaveChanges();
     }
+
+    public void Delete(Supplier supplier)
+    {
+        _context.Suppliers.Remove(supplier);
+        _context.SaveChanges();
+    }
 }
