@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - features/**
   workflow_dispatch:
 
 env:
@@ -44,7 +45,6 @@ jobs:
   build:
     name: Build application
     runs-on: ubuntu-latest
-    needs: test
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
@@ -81,6 +81,7 @@ jobs:
     environment: DEV
     needs:
       - build
+      - test
     steps:
       - name: Download pipeline artifact
         uses: actions/download-artifact@v4

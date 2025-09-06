@@ -33,5 +33,35 @@ namespace CoffeeShopIMS.Controllers
 
             return RedirectToAction(nameof(Index));
         }
+
+        public IActionResult Edit(int id)
+        {
+            var supplier = _supplierRepository.GetById(id);
+
+            if (supplier is null) return NotFound();
+            return View(supplier);
+        }
+
+        [HttpPost]
+        public IActionResult Edit(Supplier supplier)
+        {
+            if (!ModelState.IsValid) return View(supplier);
+
+            supplier.UpdatedAt = DateTime.Now;
+            _supplierRepository.Update(supplier);
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        public IActionResult Delete(int id)
+        {
+            var supplier = _supplierRepository.GetById(id);
+
+            if (supplier is null) return NotFound();
+
+            _supplierRepository.Delete(supplier);
+
+            return RedirectToAction(nameof(Index));
+        }
     }
 }

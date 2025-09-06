@@ -23,4 +23,21 @@ public class SupplierRepository : ISupplierRepository
         _context.Suppliers.Add(supplier);
         _context.SaveChanges();
     }
+
+    public Supplier? GetById(int id)
+    {
+        return _context.Suppliers.Find(id);
+    }
+
+    public void Update(Supplier supplier)
+    {
+        _context.Suppliers.Update(supplier);
+        _context.SaveChanges();
+    }
+
+    public void Delete(Supplier supplier)
+    {
+        _context.Suppliers.Remove(supplier);
+        _context.SaveChanges();
+    }
 }
