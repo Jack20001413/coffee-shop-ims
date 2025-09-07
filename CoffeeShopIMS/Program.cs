@@ -1,5 +1,6 @@
 using CoffeeShopIMS.Data;
 using CoffeeShopIMS.Repositories;
+using CoffeeShopIMS.Repositories.Implementations;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,6 +13,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(
     options => options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
 
 builder.Services.AddScoped<ISupplierRepository, SupplierRepository>();
+builder.Services.AddScoped<IIngredientRepository, IngredientRepository>();
 
 var app = builder.Build();
 
