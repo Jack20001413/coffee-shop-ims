@@ -9,6 +9,7 @@ public class Ingredient
     public string Sku { get; set; } = string.Empty;
 
     public int Quantity { get; set; }
+    public string Unit { get; set; } = string.Empty;
 
     public DateTime CreatedAt { get; set; } = DateTime.Now;
 

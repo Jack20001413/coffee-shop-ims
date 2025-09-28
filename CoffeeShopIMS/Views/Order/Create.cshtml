@@ -1,6 +1,159 @@
-﻿@{
+﻿@* @using CoffeeShopIMS.ViewModels *@
+@{
     ViewData["Title"] = "Create Order";
 }
-@model IEnumerable<Ingredient>
+@model CoffeeShopIMS.ViewModels.PurchaseRequestViewModel
 
+<div class="container mt-4">
+    <form asp-action="Create" method="post">
+        <div class="card">
+            <div class="card-header bg-primary text-center text-white">
+                <h2>Make a Purchase Request</h2>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group mb-3">
+                            <label asp-for="OrderPerson" class="form-label">Requested by</label>
+                            <input type="text" asp-for="OrderPerson" class="form-control" placeholder="Enter a name">
+                        </div>
+                        <div class="form-group mb-3">
+                            <label asp-for="VendorName" class="form-label">Vendor</label>
+                            <input type="text" asp-for="VendorName" class="form-control" placeholder="Enter a name">
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group mb-3">
+                            <label asp-for="WarehouseAddress" class="form-label">Warehouse address</label>
+                            <input type="text" asp-for="WarehouseAddress" class="form-control"
+                                placeholder="Enter warehouse addresss">
+                        </div>
+                        <div class="form-group mb-3">
+                            <label asp-for="CreationDate" class="form-label">Order creation date</label>
+                            <input type="date" class="form-control" asp-for="CreationDate"
+                                value="@DateTime.Now.ToString("yyyy-MM-dd")" disabled>
+                        </div>
+                    </div>
+                </div>
+                <div class="row my-2">
+                    <div class="d-flex justify-content-end">
+                        <button type="submit" class="btn btn-primary me-2">Book a request</button>
+                        <a asp-action="Index" asp-controller="Order" class="btn btn-danger">Cancel</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="table-responsive mt-4">
+            <table class="table table-striped table-hover text-center">
+                <thead>
+                    <th>Ingredient name</th>
+                    <th>Requested quantity</th>
+                    <th>Unit</th>
+                    <th>Actions</th>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><input type="text" class="form-control-sm form-control" name="ingredientName"
+                                placeholder=""></td>
+                        <td><input type="number" class="form-control-sm form-control" name="ingredientQuantity"
+                                value="1"></td>
+                        <td><input type="text" class="form-control-sm form-control" name="ingredientUnit"
+                                placeholder=""></td>
+                        <td>
+                            <button type="button" id="addIngredientBtn" class="btn btn-success btn-sm">Add</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </form>
+</div>
 
+@section Scripts {
+    <script>
+        $(function () {
+            $('#addIngredientBtn').click(function () {
+                var index = $('table tbody tr').length - 1;
+                var name = $('input[name="ingredientName"]').val();
+                var quantity = $('input[name="ingredientQuantity"]').val();
+                var unit = $('input[name="ingredientUnit"]').val();
+
+                if (isIngredientExistInTable(name)) {
+                    addIngredientExistingRow(name, quantity);
+                } else {
+                    addIngredientNewRow(index, name, quantity, unit);
+                }
+
+                $('input[name="ingredientName"]').val('');
+                $('input[name="ingredientQuantity"]').val(1);
+                $('input[name="ingredientUnit"]').val('');
+            });
+        })
+
+        @* 
+            This is Event Delegation.
+            The buttons in <tr> are dynamically added via scripts, so normal jQuery function won't work. Because they are not present in the DOM at the time the page loads (The script runs at this time). 
+        *@
+            $(function () {
+                $('tbody').on('click', "button.delete-ingredient-btn", function () {
+                    $(this).closest('tr').remove();
+                    reindexTableRows();
+                })
+            })
+
+        function reindexTableRows() {
+            let previousRowIndex = 1;
+            const rows = $('tbody tr');
+
+            for (let rowIndex = 1; rowIndex < rows.length; rowIndex++) {
+                $(rows[rowIndex]).find('input[name^="Ingredients"]').each(function () {
+                    let nameAttr = $(this).attr('name');
+                    $(this).attr('name', nameAttr.replace(/\[\d+\]/g, `[${rowIndex - previousRowIndex}]`));
+                });
+                previousRowIndex = rowIndex;
+            }
+        }
+
+        function isIngredientExistInTable(name) {
+            let exists = false;
+            $('tbody tr input[name^="Ingredients"]').each(function () {
+                if ($(this).val() === name) {
+                    exists = true;
+                    return;
+                }
+            });
+            return exists;
+        }
+
+        function addIngredientNewRow(rowIndex, name, quantity, unit) {
+            let newRow = `
+                        <tr>
+                            <td>
+                                <input type="text" name="Ingredients[${rowIndex}].Name" class="form-control-sm form-control" value="${name}">
+                            </td>
+                            <td>
+                                <input type="number" name="Ingredients[${rowIndex}].Quantity" class="form-control-sm form-control" value="${quantity}">
+                            </td>
+                            <td>
+                                <input type="text" name="Ingredients[${rowIndex}].Unit" class="form-control-sm form-control" value="${unit}">
+                            </td>
+                            <td>
+                                <button type="button" class="btn btn-danger btn-sm bg-danger delete-ingredient-btn">Discard</button>
+                            </td>
+                        </tr>
+                    `;
+            $('table tbody').append(newRow);
+        }
+
+        function addIngredientExistingRow(name, quantity) {
+            $('tbody tr').each(function () {
+                let quantityField = $(this).find('input[type=number]');
+
+                if ($(this).find('input[name*="Name"]').val() === name) {
+                    quantityField.val(parseInt(quantityField.val()) + parseInt(quantity));
+                }
+            });
+        }
+
+    </script>
+}

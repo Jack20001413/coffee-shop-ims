@@ -1,5 +1,6 @@
 ﻿using CoffeeShopIMS.Models;
 using CoffeeShopIMS.Repositories;
+using CoffeeShopIMS.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CoffeeShopIMS.Controllers
@@ -25,7 +26,7 @@ namespace CoffeeShopIMS.Controllers
         }
 
         [HttpPost]
-        public IActionResult Create(PurchaseOrder order, IEnumerable<Ingredient> ingredients)
+        public IActionResult Create(PurchaseRequestViewModel data)
         { 
             // TODO: Not implemented yet
             return RedirectToAction(nameof(Index));
