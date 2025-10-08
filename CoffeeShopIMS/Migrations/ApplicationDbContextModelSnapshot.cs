@@ -53,7 +53,7 @@ namespace CoffeeShopIMS.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Ingredients");
+                    b.ToTable("Ingredients", (string)null);
                 });
 
             modelBuilder.Entity("CoffeeShopIMS.Models.PurchaseOrder", b =>
@@ -93,7 +93,7 @@ namespace CoffeeShopIMS.Migrations
 
                     b.HasIndex("WarehouseId");
 
-                    b.ToTable("PurchaseOrders");
+                    b.ToTable("PurchaseOrders", (string)null);
                 });
 
             modelBuilder.Entity("CoffeeShopIMS.Models.PurchaseOrderDetail", b =>
@@ -121,7 +121,7 @@ namespace CoffeeShopIMS.Migrations
 
                     b.HasIndex("IngredientId");
 
-                    b.ToTable("PurchaseOrderDetails");
+                    b.ToTable("PurchaseOrderDetails", (string)null);
                 });
 
             modelBuilder.Entity("CoffeeShopIMS.Models.Supplier", b =>
@@ -148,7 +148,7 @@ namespace CoffeeShopIMS.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Suppliers");
+                    b.ToTable("Suppliers", (string)null);
                 });
 
             modelBuilder.Entity("CoffeeShopIMS.Models.Warehouse", b =>
@@ -175,7 +175,7 @@ namespace CoffeeShopIMS.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Warehouses");
+                    b.ToTable("Warehouses", (string)null);
                 });
 
             modelBuilder.Entity("CoffeeShopIMS.Models.PurchaseOrder", b =>
