@@ -12,9 +12,17 @@ public class IngredientRepository : IIngredientRepository
     {
         _context = context;
     }
-    
+
     public List<Ingredient> GetAll()
     {
         return _context.Ingredients.ToList();
+    }
+
+    public string? GetIngredientUnit(string ingredient)
+    {
+        return _context.Ingredients
+            .Where(i => string.Equals(i.Name, ingredient))
+            .Select(i => i.Unit)
+            .FirstOrDefault();
     }
 }
