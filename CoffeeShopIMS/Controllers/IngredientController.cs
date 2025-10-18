@@ -9,13 +9,19 @@ namespace CoffeeShopIMS.Controllers
 
         public IngredientController(IIngredientRepository ingredientRepository)
         {
-            this._ingredientRepository = ingredientRepository;
+            _ingredientRepository = ingredientRepository;
         }
 
         public ActionResult Index()
         {
             var ingredients = _ingredientRepository.GetAll();
             return View(ingredients);
+        }
+
+        public string? GetIngredientUnit(string ingredient)
+        {
+            var unit = _ingredientRepository.GetIngredientUnit(ingredient);
+            return unit;   
         }
 
     }
