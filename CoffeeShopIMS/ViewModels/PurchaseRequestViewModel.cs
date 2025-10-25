@@ -7,12 +7,22 @@ namespace CoffeeShopIMS.ViewModels;
 
 public class PurchaseRequestViewModel
 {
-    public string OrderPerson { get; set; } = string.Empty;
-    public string VendorName { get; set; } = string.Empty;
-    public SelectList? Vendors { get; set; }
-    public string WarehouseAddress { get; set; } = string.Empty;
-    public DateOnly CreationDate { get; set; } = DateOnly.FromDateTime(DateTime.Now);
-    [BindProperty]
-    public IList<Ingredient> OrderedIngredients { get; set; } = [];
+    public PurchaseRequestLoadViewModel LoadViewModel { get; set; }
+    public PurchaseRequestReceiveViewModel? ReceiveViewModel { get; set; }
+}
+
+public record struct PurchaseRequestLoadViewModel
+{
     public SelectList? Ingredients { get; set; }
+    public SelectList? Vendors { get; set; }
+    public SelectList? Warehouses { get; set; }
+}
+
+public class PurchaseRequestReceiveViewModel
+{
+    public string? OrderPerson { get; set; }
+    public string? VendorName { get; set; }
+    public int WarehouseId { get; set; }
+    public DateOnly CreationDate { get; set; }
+    public IList<PurchaseOrderDetail>? OrderedIngredients { get; set; }
 }

@@ -13,25 +13,31 @@
                 <div class="row">
                     <div class="col-md-4">
                         <div class="form-group mb-3">
-                            <label asp-for="OrderPerson" class="form-label">Requested by</label>
-                            <input type="text" asp-for="OrderPerson" class="form-control" placeholder="Enter a name">
+                            <label asp-for="ReceiveViewModel.OrderPerson" class="form-label">Requested by</label>
+                            <input type="text" asp-for="ReceiveViewModel.OrderPerson" class="form-control"
+                                placeholder="Enter a name">
                         </div>
                         <div class="form-group mb-3">
-                            <label asp-for="VendorName" class="form-label">Vendor</label>
-                            <select class="form-select form-select text-center" asp-items="@Model.Vendors" asp-for="VendorName">
+                            <label asp-for="ReceiveViewModel.VendorName" class="form-label">Vendor</label>
+                            <select class="form-select form-select text-center" asp-items="@Model.LoadViewModel.Vendors"
+                                asp-for="ReceiveViewModel.VendorName">
                                 <option value="">--Select Vendor--</option>
                             </select>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="form-group mb-3">
-                            <label asp-for="WarehouseAddress" class="form-label">Warehouse address</label>
-                            <input type="text" asp-for="WarehouseAddress" class="form-control"
-                                placeholder="Enter warehouse addresss">
+                            <label asp-for="ReceiveViewModel.WarehouseId" class="form-label">Warehouse
+                                address</label>
+                            <select class="form-select form-select text-center" asp-items="@Model.LoadViewModel.Warehouses"
+                                asp-for="ReceiveViewModel.WarehouseId">
+                                <option value="">--Select Warehouse--</option>
+                            </select>
                         </div>
                         <div class="form-group mb-3">
-                            <label asp-for="CreationDate" class="form-label">Order creation date</label>
-                            <input type="date" class="form-control" asp-for="CreationDate"
+                            <label asp-for="ReceiveViewModel.CreationDate" class="form-label">Order creation
+                                date</label>
+                            <input type="date" class="form-control" asp-for="ReceiveViewModel.CreationDate"
                                 value="@DateTime.Now.ToString("yyyy-MM-dd")" readonly>
                         </div>
                     </div>
@@ -55,8 +61,8 @@
                 <tbody>
                     <tr>
                         <td>
-                            <select class="form-select form-select-sm text-center" asp-items="@Model.Ingredients"
-                                name="ingredientName">
+                            <select class="form-select form-select-sm text-center"
+                                asp-items="@Model.LoadViewModel.Ingredients" name="ingredientName">
                                 <option value="">--Select Ingredient--</option>
                             </select>
                         </td>
@@ -66,7 +72,7 @@
                         </td>
                         <td>
                             <input type="text" class="form-control-sm form-control text-center" name="ingredientUnit"
-                                placeholder="">
+                                placeholder="" readonly>
                         </td>
                         <td>
                             <button type="button" id="addIngredientBtn" class="btn btn-success btn-sm">Add</button>
@@ -84,6 +90,7 @@
             $('#addIngredientBtn').click(function () {
                 let index = $('table tbody tr').length - 1;
                 let name = $('select[name="ingredientName"]').find(':selected').text();
+                let id = $('select[name="ingredientName"]').find(':selected').val();
                 let quantity = $('input[name="ingredientQuantity"]').val();
                 let unit = $('input[name="ingredientUnit"]').val();
 
@@ -94,7 +101,7 @@
                 if (isIngredientExistInTable(name)) {
                     addIngredientExistingRow(name, quantity);
                 } else {
-                    addIngredientNewRow(index, name, quantity, unit);
+                    addIngredientNewRow(index, id, name, quantity, unit);
                 }
 
                 $('select[name="ingredientName"]').val('');
@@ -119,7 +126,7 @@
             const rows = $('tbody tr');
 
             for (let rowIndex = 1; rowIndex < rows.length; rowIndex++) {
-                $(rows[rowIndex]).find('input[name^="OrderedIngredients"]').each(function () {
+                $(rows[rowIndex]).find('input[name^="ReceiveViewModel.OrderedIngredients"]').each(function () {
                     let nameAttr = $(this).attr('name');
                     $(this).attr('name', nameAttr.replace(/\[\d+\]/g, `[${rowIndex - previousRowIndex}]`));
                 });
@@ -129,7 +136,7 @@
 
         function isIngredientExistInTable(name) {
             let exists = false;
-            $('tbody tr input[name^="OrderedIngredients"]').each(function () {
+            $('tbody tr input[name^="ReceiveViewModel.OrderedIngredients"]').each(function () {
                 if ($(this).val() === name) {
                     exists = true;
                     return;
@@ -138,23 +145,24 @@
             return exists;
         }
 
-        function addIngredientNewRow(rowIndex, name, quantity, unit) {
+        function addIngredientNewRow(rowIndex, id, name, quantity, unit) {
             let newRow = `
-                                <tr>
-                                    <td>
-                                        <input type="text" name="OrderedIngredients[${rowIndex}].Name" class="form-control-sm form-control text-center" value="${name}" readonly>
-                                    </td>
-                                    <td>
-                                        <input type="number" name="OrderedIngredients[${rowIndex}].Quantity" class="form-control-sm form-control text-center" value="${quantity}" readonly>
-                                    </td>
-                                    <td>
-                                        <input type="text" name="OrderedIngredients[${rowIndex}].Unit" class="form-control-sm form-control text-center" value="${unit}" readonly>
-                                    </td>
-                                    <td>
-                                        <button type="button" class="btn btn-danger btn-sm bg-danger delete-ingredient-btn">Discard</button>
-                                    </td>
-                                </tr>
-                            `;
+                    <tr>
+                        <td>
+                            <input type="hidden" name="ReceiveViewModel.OrderedIngredients[${rowIndex}].IngredientId" value="${id}">
+                            <input type="text" name="ReceiveViewModel.OrderedIngredients[${rowIndex}].Name" class="form-control-sm form-control text-center" value="${name}" readonly>
+                        </td>
+                        <td>
+                            <input type="number" name="ReceiveViewModel.OrderedIngredients[${rowIndex}].Quantity" class="form-control-sm form-control text-center" value="${quantity}" readonly>
+                        </td>
+                        <td>
+                            <input type="text" name="ReceiveViewModel.OrderedIngredients[${rowIndex}].Unit" class="form-control-sm form-control text-center" value="${unit}" readonly>
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-danger btn-sm bg-danger delete-ingredient-btn">Discard</button>
+                        </td>
+                    </tr>
+                `;
             $('table tbody').append(newRow);
         }
 

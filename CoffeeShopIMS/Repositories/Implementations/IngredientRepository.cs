@@ -13,6 +13,11 @@ public class IngredientRepository : IIngredientRepository
         _context = context;
     }
 
+    public void CommitChanges()
+    {
+        _context.SaveChanges();
+    }
+
     public List<Ingredient> GetAll()
     {
         return _context.Ingredients.ToList();

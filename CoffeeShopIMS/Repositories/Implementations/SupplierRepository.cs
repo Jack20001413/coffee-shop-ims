@@ -1,6 +1,7 @@
 using System;
 using CoffeeShopIMS.Data;
 using CoffeeShopIMS.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace CoffeeShopIMS.Repositories;
 
@@ -21,7 +22,7 @@ public class SupplierRepository : ISupplierRepository
     public void Create(Supplier supplier)
     {
         _context.Suppliers.Add(supplier);
-        _context.SaveChanges();
+        // _context.SaveChanges();
     }
 
     public Supplier? GetById(int id)
@@ -32,12 +33,25 @@ public class SupplierRepository : ISupplierRepository
     public void Update(Supplier supplier)
     {
         _context.Suppliers.Update(supplier);
-        _context.SaveChanges();
+        // _context.SaveChanges();
     }
 
     public void Delete(Supplier supplier)
     {
         _context.Suppliers.Remove(supplier);
+        // _context.SaveChanges();
+    }
+
+    public void CommitChanges()
+    {
         _context.SaveChanges();
+    }
+
+    public Supplier FindByName(string name)
+    {
+        return _context.Suppliers
+            // .AsNoTracking()
+            .Where(s => s.Name == name)
+            .First();
     }
 }

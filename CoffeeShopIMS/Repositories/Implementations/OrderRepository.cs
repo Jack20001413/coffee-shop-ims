@@ -12,6 +12,11 @@ public class OrderRepository : IOrderRepository
         _context = context;
     }
 
+    public void CommitChanges()
+    {
+        _context.SaveChanges();
+    }
+
     public void Create(PurchaseOrder order)
     {
         _context.PurchaseOrders.Add(order);

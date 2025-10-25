@@ -6,4 +6,5 @@ public interface IOrderRepository
 {
     public List<PurchaseOrder> GetAll();
     public void Create(PurchaseOrder order);
+    public void CommitChanges();
 }
