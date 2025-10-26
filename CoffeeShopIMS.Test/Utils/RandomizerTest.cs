@@ -7,7 +7,7 @@ namespace CoffeeShopIMS.Test.Utils;
 public class RandomizerTest
 {
     [Fact]
-    public void GenerateRandomString_ShouldReturnNonEmptyString()
+    public void GenerateCode_GenerateRandomString_ShouldReturnNonEmptyString()
     {
         // Arrange
 
