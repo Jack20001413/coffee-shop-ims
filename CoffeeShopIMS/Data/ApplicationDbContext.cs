@@ -11,11 +11,15 @@ public class ApplicationDbContext : DbContext
 
     }
 
-    public DbSet<Ingredient> Ingredients { get; set; }
-    public DbSet<PurchaseOrder> PurchaseOrders { get; set; }
-    public DbSet<PurchaseOrderDetail> PurchaseOrderDetails { get; set; }
-    public DbSet<Supplier> Suppliers { get; set; }
-    public DbSet<Warehouse> Warehouses { get; set; }
+    // This constructor is needed for mocking ApplicationDbContext in tests
+    public ApplicationDbContext() { }
+
+    // "virtual" keyword is needed for mocking DbSet in tests
+    public virtual DbSet<Ingredient> Ingredients { get; set; }
+    public virtual DbSet<PurchaseOrder> PurchaseOrders { get; set; }
+    public virtual DbSet<PurchaseOrderDetail> PurchaseOrderDetails { get; set; }
+    public virtual DbSet<Supplier> Suppliers { get; set; }
+    public virtual DbSet<Warehouse> Warehouses { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
