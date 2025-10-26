@@ -1,70 +1,77 @@
-﻿using System.Collections.ObjectModel;
+﻿using CoffeeShopIMS.Data;
 using CoffeeShopIMS.Models;
-using CoffeeShopIMS.Repositories;
 using CoffeeShopIMS.Utils;
 using CoffeeShopIMS.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 
-namespace CoffeeShopIMS.Controllers
+namespace CoffeeShopIMS.Controllers;
+
+public class OrderController : Controller
 {
-    public class OrderController : Controller
+    private readonly ApplicationDbContext _context;
+
+    public OrderController(ApplicationDbContext context)
     {
-        private readonly IOrderRepository _orderRepository;
-        private readonly IIngredientRepository _ingredientRepository;
-        private readonly ISupplierRepository _supplierRepository;
-        private readonly IWarehouseRepository _warehouseRepository;
+        _context = context;
+    }
 
-        public OrderController(IOrderRepository orderRepository, IIngredientRepository ingredientRepository, ISupplierRepository supplierRepository, IWarehouseRepository warehouseRepository)
-        {
-            _orderRepository = orderRepository;
-            _ingredientRepository = ingredientRepository;
-            _supplierRepository = supplierRepository;
-            _warehouseRepository = warehouseRepository;
-        }
+    public IActionResult Index()
+    {
+        var orders = _context.PurchaseOrders.AsNoTracking().ToList();
+        return View(orders);
+    }
 
-        public IActionResult Index()
+    public IActionResult Create()
+    {
+        var model = new PurchaseRequestViewModel
         {
-            var orders = _orderRepository.GetAll();
-            return View(orders);
-        }
-
-        public IActionResult Create()
-        {
-            var model = new PurchaseRequestViewModel
+            LoadViewModel = new PurchaseRequestLoadViewModel
             {
-                LoadViewModel = new PurchaseRequestLoadViewModel
-                {
-                    Ingredients = new SelectList(_ingredientRepository.GetAll(), nameof(Ingredient.Id), nameof(Ingredient.Name)),
-                    Vendors = new SelectList(_supplierRepository.GetAll(), nameof(Supplier.Name), nameof(Supplier.Name)),
-                    Warehouses = new SelectList(_warehouseRepository.GetAll(), nameof(Warehouse.Id), nameof(Warehouse.Address))
-                }
-            };
-            return View(model);
-        }
+                Ingredients = new SelectList(_context.Ingredients.AsNoTracking().ToList(), nameof(Ingredient.Id), nameof(Ingredient.Name)),
+                Vendors = new SelectList(_context.Suppliers.AsNoTracking().ToList(), nameof(Supplier.Name), nameof(Supplier.Name)),
+                Warehouses = new SelectList(_context.Warehouses.AsNoTracking().ToList(), nameof(Warehouse.Id), nameof(Warehouse.Address))
+            }
+        };
+        return View(model);
+    }
 
-        [HttpPost]
-        public IActionResult Create(PurchaseRequestViewModel data)
+    [HttpPost]
+    public IActionResult Create(PurchaseRequestViewModel data)
+    {
+        var receivedData = data.ReceiveViewModel!;
+        var supplier = _context.Suppliers.FirstOrDefault(s => s.Name == receivedData.VendorName);
+
+        if (supplier is null)
         {
-            // TODO: Being implemented
-            var receivedData = data.ReceiveViewModel;
-            var supplier = _supplierRepository.FindByName(receivedData.VendorName);
-            var order = new PurchaseOrder
-            {
-                CreationDate = receivedData.CreationDate,
-                OrderPerson = receivedData.OrderPerson,
-                Supplier = supplier,
-                OrderNumber = Randomizer.GenerateOrderCode(),
-                UpdatedAt = DateTime.UtcNow,
-                OrderDetails = receivedData.OrderedIngredients,
-                WarehouseId = receivedData.WarehouseId
-            };
-
-            _orderRepository.Create(order);
-            _orderRepository.CommitChanges();
-
-            return RedirectToAction(nameof(Index));
+            return NotFound($"Supplier {receivedData.VendorName} not found in database.");
         }
 
+        var order = new PurchaseOrder
+        {
+            CreationDate = receivedData.CreationDate,
+            OrderPerson = receivedData.OrderPerson,
+            Supplier = supplier,
+            OrderNumber = Randomizer.GenerateOrderCode(),
+            UpdatedAt = DateTime.UtcNow,
+            OrderDetails = receivedData.OrderedIngredients,
+            WarehouseId = receivedData.WarehouseId
+        };
+        _context.PurchaseOrders.Add(order);
+
+        foreach (var item in receivedData.OrderedIngredients)
+        {
+            var ingredient = _context.Ingredients.Find(item.IngredientId);
+            if (ingredient is not null)
+            {
+                ingredient.Quantity += item.Quantity;
+                _context.Ingredients.Update(ingredient);
+            }
+        }
+
+        _context.SaveChanges();
+
+        return RedirectToAction(nameof(Index));
     }
 }
