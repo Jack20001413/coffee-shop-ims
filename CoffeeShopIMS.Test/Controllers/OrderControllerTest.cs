@@ -1,7 +1,9 @@
 using System;
+using System.Linq.Expressions;
 using CoffeeShopIMS.Controllers;
 using CoffeeShopIMS.Data;
 using CoffeeShopIMS.Models;
+using CoffeeShopIMS.Utils;
 using CoffeeShopIMS.ViewModels;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
@@ -14,31 +16,32 @@ namespace CoffeeShopIMS.Test.Controllers;
 public class OrderControllerTest
 {
     private Mock<ApplicationDbContext> _mockContext;
-    private Mock<DbSet<PurchaseOrder>> _mockDbSet;
 
     public OrderControllerTest()
     {
         // Dependencies
-        _mockDbSet = new Mock<DbSet<PurchaseOrder>>();
-
         _mockContext = new Mock<ApplicationDbContext>();
     }
-    
+
     [Fact]
     public void Index_GoToIndexPage_ShoudReturnSuccess()
     {
         // Arrange
         var orders = new List<PurchaseOrder>()
         {
-            new() { Id = 1, OrderNumber = "orderNo1", CreationDate = DateOnly.MinValue, OrderPerson = "Person A", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow},
+            new()
+            {
+                Id = 1,
+                OrderNumber = "orderNo1",
+                CreationDate = DateOnly.MinValue,
+                OrderPerson = "Test employee",
+                CreatedAt = DateTime.MinValue,
+                UpdatedAt = DateTime.MinValue
+            },
         }.AsQueryable();
+        var mockDbSetOrder = orders.GetDbSetMock();
 
-        _mockDbSet.As<IQueryable<PurchaseOrder>>().Setup(m => m.Provider).Returns(orders.Provider);
-        _mockDbSet.As<IQueryable<PurchaseOrder>>().Setup(m => m.Expression).Returns(orders.Expression);
-        _mockDbSet.As<IQueryable<PurchaseOrder>>().Setup(m => m.ElementType).Returns(orders.ElementType);
-        _mockDbSet.As<IQueryable<PurchaseOrder>>().Setup(m => m.GetEnumerator()).Returns(orders.GetEnumerator);
-
-        _mockContext.Setup(c => c.PurchaseOrders).Returns(_mockDbSet.Object);
+        _mockContext.Setup(c => c.PurchaseOrders).Returns(mockDbSetOrder.Object);
 
         var orderController = new OrderController(_mockContext.Object);
 
@@ -55,38 +58,46 @@ public class OrderControllerTest
     public void HttpGetCreate_GoToCreatePage_ShouldReturnSuccess()
     {
         // Arrange
-        var ingredients = new List<Ingredient>()
+        var mockIngredient = new List<Ingredient>()
         {
-            new() { Id = 1, Name = "Coffee", Quantity = 100, Unit = "kg", Sku = "COF100", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow}
+            new()
+            {
+                Id = 1,
+                Name = "Test ingredient",
+                Quantity = 100,
+                Unit = "kg",
+                Sku = "TEST",
+                CreatedAt = DateTime.MinValue,
+                UpdatedAt = DateTime.MinValue
+}
         }.AsQueryable();
+        var mockDbSetIngredient = mockIngredient.GetDbSetMock();
 
-        var mockDbSetIngredient = new Mock<DbSet<Ingredient>>();
-        mockDbSetIngredient.As<IQueryable<Ingredient>>().Setup(m => m.Provider).Returns(ingredients.Provider);
-        mockDbSetIngredient.As<IQueryable<Ingredient>>().Setup(m => m.Expression).Returns(ingredients.Expression);
-        mockDbSetIngredient.As<IQueryable<Ingredient>>().Setup(m => m.ElementType).Returns(ingredients.ElementType);
-        mockDbSetIngredient.As<IQueryable<Ingredient>>().Setup(m => m.GetEnumerator()).Returns(ingredients.GetEnumerator);
-        
-        var warehouses = new List<Warehouse>()
+        var mockWarehouse = new List<Warehouse>()
         {
-            new() { Id = 1, Address = "123 Warehouse St", PersonInCharge = "Employee A", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow}
+            new()
+            {
+                Id = 1,
+                Address = "Test address",
+                PersonInCharge = "Test employee",
+                CreatedAt = DateTime.MinValue,
+                UpdatedAt = DateTime.MinValue
+            }
         }.AsQueryable();
+        var mockDbSetWarehouse = mockWarehouse.GetDbSetMock();
 
-        var mockDbSetWarehouse = new Mock<DbSet<Warehouse>>();
-        mockDbSetWarehouse.As<IQueryable<Warehouse>>().Setup(m => m.Provider).Returns(warehouses.Provider);
-        mockDbSetWarehouse.As<IQueryable<Warehouse>>().Setup(m => m.Expression).Returns(warehouses.Expression);
-        mockDbSetWarehouse.As<IQueryable<Warehouse>>().Setup(m => m.ElementType).Returns(warehouses.ElementType);
-        mockDbSetWarehouse.As<IQueryable<Warehouse>>().Setup(m => m.GetEnumerator()).Returns(warehouses.GetEnumerator);
-        
-        var vendors = new List<Supplier>()
+        var mockSupplier = new List<Supplier>()
         {
-            new() { Id = 1, Name = "Supplier A", Address = "123 Supplier St", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow}
+            new()
+            {
+                Id = 1,
+                Name = "Test supplier",
+                Address = "Test address",
+                CreatedAt = DateTime.MinValue,
+                UpdatedAt = DateTime.MinValue
+            }
         }.AsQueryable();
-
-        var mockDbSetVendor = new Mock<DbSet<Supplier>>();
-        mockDbSetVendor.As<IQueryable<Supplier>>().Setup(m => m.Provider).Returns(vendors.Provider);
-        mockDbSetVendor.As<IQueryable<Supplier>>().Setup(m => m.Expression).Returns(vendors.Expression);
-        mockDbSetVendor.As<IQueryable<Supplier>>().Setup(m => m.ElementType).Returns(vendors.ElementType);
-        mockDbSetVendor.As<IQueryable<Supplier>>().Setup(m => m.GetEnumerator()).Returns(vendors.GetEnumerator);
+        var mockDbSetVendor = mockSupplier.GetDbSetMock();
 
         _mockContext.Setup(c => c.Ingredients).Returns(mockDbSetIngredient.Object);
         _mockContext.Setup(c => c.Warehouses).Returns(mockDbSetWarehouse.Object);
@@ -101,5 +112,133 @@ public class OrderControllerTest
         result.Should().BeAssignableTo<IActionResult>();
         result.As<ViewResult>().Model.Should().BeAssignableTo<PurchaseRequestViewModel>();
         result.As<ViewResult>().Model.As<PurchaseRequestLoadViewModel>().Should().NotBeNull();
+    }
+
+    [Fact]
+    public void HttpPostCreate_CreateNewOrder_ShouldCreateOrderSuccessful()
+    {
+        // Arrange
+        var testOrderDetails = new List<PurchaseOrderDetail>
+        {
+            new()
+            {
+                IngredientId = 1,
+                Quantity = 1,
+                OrderId = 1,
+                CreatedAt = DateTime.MinValue,
+                UpdatedAt = DateTime.MinValue
+            }
+        };
+
+        var testReceiveData = new PurchaseRequestViewModel
+        {
+            ReceiveViewModel = new PurchaseRequestReceiveViewModel
+            {
+                OrderPerson = "Test employee",
+                VendorName = "Test supplier",
+                OrderedIngredients = testOrderDetails,
+                CreationDate = DateOnly.MinValue,
+                WarehouseId = 1,
+            }
+        };
+
+        var mockSupplier = new List<Supplier> {
+            new()
+            {
+                Id = 1,
+                Name = "Test supplier",
+                Address = "Test address",
+                CreatedAt = DateTime.MinValue,
+                UpdatedAt = DateTime.MinValue
+            }
+        }.AsQueryable();
+        var mockDbSetSupplier = mockSupplier.GetDbSetMock();
+
+        var mockIngredient = new List<Ingredient>
+        {
+            new()
+            {
+                Id = 1,
+                Name = "Test ingredient",
+                Quantity = 1,
+                Unit = "kg",
+                Sku = "TEST",
+                CreatedAt = DateTime.MinValue,
+                UpdatedAt = DateTime.MinValue
+            }
+        }.AsQueryable();
+        var mockDbSetIngredient = mockIngredient.GetDbSetMock();
+
+        mockDbSetIngredient.Setup(m => m.Find(It.IsAny<int>())).Returns(mockIngredient.First());
+
+        var mockDbSetOrder = new Mock<DbSet<PurchaseOrder>>();
+
+        _mockContext.Setup(c => c.Suppliers).Returns(mockDbSetSupplier.Object);
+        _mockContext.Setup(c => c.Ingredients).Returns(mockDbSetIngredient.Object);
+        _mockContext.Setup(c => c.PurchaseOrders).Returns(mockDbSetOrder.Object);
+
+        var controller = new OrderController(_mockContext.Object);
+
+        // Act
+        var result = controller.Create(testReceiveData);
+
+        // Assert
+        result.As<RedirectToActionResult>().ActionName.Should().Be("Index");
+        mockDbSetOrder.Verify(m => m.Add(It.IsAny<PurchaseOrder>()), Times.Once);
+        mockDbSetIngredient.Verify(m => m.Find(It.IsAny<int>()), Times.AtLeastOnce);
+        mockDbSetIngredient.Verify(m => m.Update(It.IsAny<Ingredient>()), Times.AtLeastOnce);
+        _mockContext.Verify(m => m.SaveChanges(), Times.Once);
+    }
+
+    [Fact]
+    public void HttpPostCreate_CreateNewOrder_ShouldNotFindSupplier()
+    {
+        // Arrange
+        var testOrderDetails = new List<PurchaseOrderDetail>
+        {
+            new()
+            {
+                IngredientId = 1,
+                Quantity = 1,
+                OrderId = 1,
+                CreatedAt = DateTime.MinValue,
+                UpdatedAt = DateTime.MinValue
+            }
+        };
+
+        var testReceiveData = new PurchaseRequestViewModel
+        {
+            ReceiveViewModel = new PurchaseRequestReceiveViewModel
+            {
+                OrderPerson = "Test employee",
+                VendorName = "Test vendor",
+                OrderedIngredients = testOrderDetails,
+                CreationDate = DateOnly.MinValue,
+                WarehouseId = 1,
+            }
+        };
+
+        var mockSupplier = new List<Supplier> {
+            new()
+            {
+                Id = 1,
+                Name = "Test supplier",
+                Address = "Test address",
+                CreatedAt = DateTime.MinValue,
+                UpdatedAt = DateTime.MinValue
+            }
+        }.AsQueryable();
+        var mockDbSetSupplier = mockSupplier.GetDbSetMock();
+
+        _mockContext.Setup(m => m.Suppliers).Returns(mockDbSetSupplier.Object);
+
+        var controller = new OrderController(_mockContext.Object);
+
+        // Act
+        var result = controller.Create(testReceiveData);
+
+        // Assert
+        result.Should().BeOfType<NotFoundObjectResult>();
+        result.As<NotFoundObjectResult>().StatusCode.Should().Be(404);
     }
 }
