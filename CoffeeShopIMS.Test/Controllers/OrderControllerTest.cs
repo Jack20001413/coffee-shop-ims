@@ -131,7 +131,7 @@ public class OrderControllerTest
             ReceiveViewModel = new PurchaseRequestReceiveViewModel
             {
                 OrderPerson = "Test employee",
-                VendorName = "Test supplier",
+                SupplierId = 1,
                 OrderedIngredients = testOrderDetails,
                 CreationDate = DateOnly.MinValue,
                 WarehouseId = 1,
@@ -207,24 +207,14 @@ public class OrderControllerTest
             ReceiveViewModel = new PurchaseRequestReceiveViewModel
             {
                 OrderPerson = "Test employee",
-                VendorName = "Test vendor",
+                SupplierId = 1,
                 OrderedIngredients = testOrderDetails,
                 CreationDate = DateOnly.MinValue,
                 WarehouseId = 1,
             }
         };
 
-        var mockSupplier = new List<Supplier> {
-            new()
-            {
-                Id = 1,
-                Name = "Test supplier",
-                Address = "Test address",
-                CreatedAt = DateTime.MinValue,
-                UpdatedAt = DateTime.MinValue
-            }
-        }.AsQueryable();
-        var mockDbSetSupplier = mockSupplier.GetDbSetMock();
+        var mockDbSetSupplier = new List<Supplier>().AsQueryable().GetDbSetMock();
 
         _mockContext.Setup(m => m.Suppliers).Returns(mockDbSetSupplier.Object);
 
