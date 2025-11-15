@@ -1,7 +1,5 @@
-using System;
 using System.ComponentModel.DataAnnotations;
 using CoffeeShopIMS.Models;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace CoffeeShopIMS.ViewModels;
@@ -23,7 +21,7 @@ public class PurchaseRequestReceiveViewModel
 {
     [Required(ErrorMessage = "Order person's name is required")]
     public string? OrderPerson { get; set; }
-    
+
     [Range(1, int.MaxValue - 1, ErrorMessage = "Vendor ID must be greater than 0")]
     public int SupplierId { get; set; }
 
