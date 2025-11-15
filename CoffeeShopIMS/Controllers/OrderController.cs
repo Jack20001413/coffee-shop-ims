@@ -5,6 +5,7 @@ using CoffeeShopIMS.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 namespace CoffeeShopIMS.Controllers;
 
@@ -30,7 +31,7 @@ public class OrderController : Controller
             LoadViewModel = new PurchaseRequestLoadViewModel
             {
                 Ingredients = new SelectList(_context.Ingredients.AsNoTracking().ToList(), nameof(Ingredient.Id), nameof(Ingredient.Name)),
-                Vendors = new SelectList(_context.Suppliers.AsNoTracking().ToList(), nameof(Supplier.Name), nameof(Supplier.Name)),
+                Vendors = new SelectList(_context.Suppliers.AsNoTracking().ToList(), nameof(Supplier.Id), nameof(Supplier.Name)),
                 Warehouses = new SelectList(_context.Warehouses.AsNoTracking().ToList(), nameof(Warehouse.Id), nameof(Warehouse.Address))
             }
         };
@@ -40,27 +41,59 @@ public class OrderController : Controller
     [HttpPost]
     public IActionResult Create(PurchaseRequestViewModel data)
     {
-        var receivedData = data.ReceiveViewModel!;
-        var supplier = _context.Suppliers.FirstOrDefault(s => s.Name == receivedData.VendorName);
+        if ((data is null) || (data.ReceiveViewModel is null))
+        {
+            return BadRequest("No data received.");
+        }
+
+        var receivedData = data.ReceiveViewModel;
+
+        if (receivedData.SupplierId <= 0)
+        {
+            ModelState.AddModelError("ReceiveViewModel.VendorName", "A valid vendor must be selected.");
+        }
+
+        if (receivedData.WarehouseId <= 0)
+        {
+            ModelState.AddModelError("ReceiveViewModel.WarehouseId", "A valid warehouse must be selected.");
+        }
+
+        if (receivedData.OrderedIngredients.IsNullOrEmpty())
+        {
+            ModelState.AddModelError("ReceiveViewModel.OrderedIngredients", "At least one ingredient must be ordered.");
+        }
+
+        if (!ModelState.IsValid)
+        {
+            data.LoadViewModel = new PurchaseRequestLoadViewModel
+            {
+                Ingredients = new SelectList(_context.Ingredients.AsNoTracking().ToList(), nameof(Ingredient.Id), nameof(Ingredient.Name)),
+                Vendors = new SelectList(_context.Suppliers.AsNoTracking().ToList(), nameof(Supplier.Name), nameof(Supplier.Name)),
+                Warehouses = new SelectList(_context.Warehouses.AsNoTracking().ToList(), nameof(Warehouse.Id), nameof(Warehouse.Address))
+            };
+            return View(data);
+        }
+
+        var supplier = _context.Suppliers.SingleOrDefault(s => s.Id == receivedData.SupplierId);
 
         if (supplier is null)
         {
-            return NotFound($"Supplier {receivedData.VendorName} not found in database.");
+            return NotFound($"Supplier not found.");
         }
 
         var order = new PurchaseOrder
         {
             CreationDate = receivedData.CreationDate,
-            OrderPerson = receivedData.OrderPerson,
+            OrderPerson = receivedData.OrderPerson!,
             Supplier = supplier,
             OrderNumber = Randomizer.GenerateOrderCode(),
             UpdatedAt = DateTime.UtcNow,
-            OrderDetails = receivedData.OrderedIngredients,
+            OrderDetails = receivedData.OrderedIngredients!,
             WarehouseId = receivedData.WarehouseId
         };
         _context.PurchaseOrders.Add(order);
 
-        foreach (var item in receivedData.OrderedIngredients)
+        foreach (var item in receivedData.OrderedIngredients!)
         {
             var ingredient = _context.Ingredients.Find(item.IngredientId);
             if (ingredient is not null)

@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel.DataAnnotations;
 using CoffeeShopIMS.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -20,8 +21,9 @@ public record struct PurchaseRequestLoadViewModel
 
 public class PurchaseRequestReceiveViewModel
 {
+    [Required(ErrorMessage = "Order person's name is required.")]
     public string? OrderPerson { get; set; }
-    public string? VendorName { get; set; }
+    public int SupplierId { get; set; }
     public int WarehouseId { get; set; }
     public DateOnly CreationDate { get; set; }
     public IList<PurchaseOrderDetail>? OrderedIngredients { get; set; }
