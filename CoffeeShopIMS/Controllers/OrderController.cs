@@ -43,24 +43,14 @@ public class OrderController : Controller
     {
         if ((data is null) || (data.ReceiveViewModel is null))
         {
-            return BadRequest("No data received.");
+            return BadRequest("No data received from client.");
         }
 
         var receivedData = data.ReceiveViewModel;
 
-        if (receivedData.SupplierId <= 0)
-        {
-            ModelState.AddModelError("ReceiveViewModel.VendorName", "A valid vendor must be selected.");
-        }
-
-        if (receivedData.WarehouseId <= 0)
-        {
-            ModelState.AddModelError("ReceiveViewModel.WarehouseId", "A valid warehouse must be selected.");
-        }
-
         if (receivedData.OrderedIngredients.IsNullOrEmpty())
         {
-            ModelState.AddModelError("ReceiveViewModel.OrderedIngredients", "At least one ingredient must be ordered.");
+            ModelState.AddModelError("ReceiveViewModel.OrderedIngredients", "At least one ingredient must be ordered");
         }
 
         if (!ModelState.IsValid)
@@ -78,7 +68,7 @@ public class OrderController : Controller
 
         if (supplier is null)
         {
-            return NotFound($"Supplier not found.");
+            return NotFound("Supplier not found.");
         }
 
         var order = new PurchaseOrder

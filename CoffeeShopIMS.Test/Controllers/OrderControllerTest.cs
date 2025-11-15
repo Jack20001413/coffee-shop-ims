@@ -226,5 +226,53 @@ public class OrderControllerTest
         // Assert
         result.Should().BeOfType<NotFoundObjectResult>();
         result.As<NotFoundObjectResult>().StatusCode.Should().Be(404);
+        result.As<NotFoundObjectResult>().Value.Should().Be("Supplier not found.");
+    }
+
+    [Fact]
+    public void HttpPostCreate_CreateNewOrder_ShouldNotReceiveNullDataFromClient()
+    {
+        // Arrange
+        PurchaseRequestViewModel testReceiveData = null!;
+
+        var controller = new OrderController(_mockContext.Object);
+    
+        // Act
+        var result = controller.Create(testReceiveData);
+    
+        // Assert
+        result.As<BadRequestObjectResult>().StatusCode.Should().Be(400);
+        result.As<BadRequestObjectResult>().Value.Should().Be("No data received from client.");
+    }
+
+    [Fact]
+    public void HttpPostCreate_CreateNewOrder_ShouldNotHaveEmptyOrderedIngredients()
+    {
+        // Arrange
+        var testReceiveData = new PurchaseRequestViewModel
+        {
+          ReceiveViewModel = new PurchaseRequestReceiveViewModel
+          {
+              OrderedIngredients = []
+          }  
+        };
+
+        var mockDbSetIngredient = new List<Ingredient>().AsQueryable().GetDbSetMock();
+        var mockDbSetSupplier = new List<Supplier>().AsQueryable().GetDbSetMock();
+        var mockDbSetWarehouse = new List<Warehouse>().AsQueryable().GetDbSetMock();
+
+        _mockContext.Setup(m => m.Ingredients).Returns(mockDbSetIngredient.Object);
+        _mockContext.Setup(m => m.Suppliers).Returns(mockDbSetSupplier.Object);
+        _mockContext.Setup(m => m.Warehouses).Returns(mockDbSetWarehouse.Object);
+
+        var controller = new OrderController(_mockContext.Object);
+    
+        // Act
+        var result = controller.Create(testReceiveData);
+    
+        // Assert
+        var modelState = controller.ModelState;
+        modelState.IsValid.Should().Be(false);
+        modelState["ReceiveViewModel.OrderedIngredients"]!.Errors[0].ErrorMessage.Should().Be("At least one ingredient must be ordered");
     }
 }
