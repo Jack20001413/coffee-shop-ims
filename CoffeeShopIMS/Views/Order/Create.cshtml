@@ -1,0 +1,224 @@
+﻿@{
+    ViewData["Title"] = "Create Order";
+}
+@model CoffeeShopIMS.ViewModels.PurchaseRequestViewModel
+
+<div class="container mt-4">
+    <form asp-action="Create" method="post">
+        <div class="card">
+            <div class="card-header bg-primary text-center text-white">
+                <h2>Make a Purchase Request</h2>
+            </div>
+            <div class="card-body">
+                <div class="row justify-content-evenly">
+                    <div class="row mb-3">
+                        <div class="form-group mb-4 col-md-6">
+                            <label asp-for="ReceiveViewModel.OrderPerson" class="form-label">Requested by</label>
+                            <input type="text" asp-for="ReceiveViewModel.OrderPerson" class="form-control text-center"
+                                placeholder="Enter a name">
+                            <span class="text-danger" asp-validation-for="ReceiveViewModel.OrderPerson"></span>
+                        </div>
+                        <div class="form-group mb-4 col-md-6">
+                            <label asp-for="ReceiveViewModel.WarehouseId" class="form-label">Warehouse
+                                address</label>
+                            <select class="form-select form-select text-center"
+                                asp-items="@Model.LoadViewModel.Warehouses" asp-for="ReceiveViewModel.WarehouseId">
+                                <option value="">--Select Warehouse--</option>
+                            </select>
+                            <span class="text-danger" asp-validation-for="ReceiveViewModel.WarehouseId"></span>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="form-group mb-4 col-md-6">
+                            <label asp-for="ReceiveViewModel.SupplierId" class="form-label">Vendor</label>
+                            <select class="form-select form-select text-center" asp-items="@Model.LoadViewModel.Vendors"
+                                asp-for="ReceiveViewModel.SupplierId">
+                                <option value="">--Select Vendor--</option>
+                            </select>
+                            <span class="text-danger" asp-validation-for="ReceiveViewModel.SupplierId"></span>
+                        </div>
+                        <div class="form-group mb-4 col-md-6">
+                            <label asp-for="ReceiveViewModel.CreationDate" class="form-label">Order creation
+                                date</label>
+                            <input type="date" class="form-control text-center" asp-for="ReceiveViewModel.CreationDate"
+                                value="@DateTime.UtcNow.ToString("yyyy-MM-dd")" readonly>
+                        </div>
+                    </div>
+                </div>
+                <div class="row my-2">
+                    <div class="d-flex justify-content-end">
+                        <button type="submit" class="btn btn-primary me-2">Book a request</button>
+                        <a asp-action="Index" asp-controller="Order" class="btn btn-danger">Cancel</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="table-responsive mt-4">
+            <table class="table table-striped table-hover text-center">
+                <thead>
+                    <th>Ingredient name</th>
+                    <th>Requested quantity</th>
+                    <th>Unit</th>
+                    <th>Actions</th>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <select class="form-select form-select-sm text-center"
+                                asp-items="@Model.LoadViewModel.Ingredients" name="ingredientName">
+                                <option value="">--Select Ingredient--</option>
+                            </select>
+                        </td>
+                        <td>
+                            <input type="number" class="form-control-sm form-control text-center"
+                                name="ingredientQuantity" value="1">
+                        </td>
+                        <td>
+                            <input type="text" class="form-control-sm form-control text-center" name="ingredientUnit"
+                                placeholder="" readonly>
+                        </td>
+                        <td>
+                            <button type="button" id="addIngredientBtn" class="btn btn-success btn-sm">Add</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </form>
+</div>
+
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div class="toast" role="alert" aria-live="assertive" aria-atomic="true" style="background-color: red;">
+        <div class="toast-header">
+            <strong class="me-auto">Error</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body"></div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $('button[type="submit"]').click(function () {
+            let tableRows = $('table tbody tr').length - 1;
+
+            if (tableRows === 0) {
+                console.log("Hello from submit button click");
+                $('.toast-body').text('No ingredients have been added to the order request.').css({
+                    "color": "white",
+                    "font-weight": "bold"
+                });
+                $('.toast').toast('show');
+                return false;
+            }
+        });
+
+        $('#addIngredientBtn').click(function () {
+            let index = $('table tbody tr').length - 1;
+            let name = $('select[name="ingredientName"]').find(':selected').text();
+            let id = $('select[name="ingredientName"]').find(':selected').val();
+            let quantity = $('input[name="ingredientQuantity"]').val();
+            let unit = $('input[name="ingredientUnit"]').val();
+
+            if (name.indexOf('Select Ingredient') !== -1) {
+                return;
+            }
+
+            if (isIngredientExistInTable(name)) {
+                addIngredientExistingRow(name, quantity);
+            } else {
+                addIngredientNewRow(index, id, name, quantity, unit);
+            }
+
+            $('select[name="ingredientName"]').val('');
+            $('input[name="ingredientQuantity"]').val(1);
+            $('input[name="ingredientUnit"]').val('');
+        });
+
+        @* 
+            This is Event Delegation.
+            The buttons in <tr> are dynamically added via scripts, so normal jQuery function won't work. Because they are not present in the DOM at the time the page loads (The script runs at this time). 
+        *@
+        $('tbody').on('click', "button.delete-ingredient-btn", function () {
+            $(this).closest('tr').remove();
+            reindexTableRows();
+        });
+
+        function reindexTableRows() {
+            let previousRowIndex = 1;
+            const rows = $('tbody tr');
+
+            for (let rowIndex = 1; rowIndex < rows.length; rowIndex++) {
+                $(rows[rowIndex]).find('input[name^="ReceiveViewModel.OrderedIngredients"]').each(function () {
+                    let nameAttr = $(this).attr('name');
+                    $(this).attr('name', nameAttr.replace(/\[\d+\]/g, `[${rowIndex - previousRowIndex}]`));
+                });
+                previousRowIndex = rowIndex;
+            }
+        }
+
+        function isIngredientExistInTable(name) {
+            let exists = false;
+            $('tbody tr input[name^="ReceiveViewModel.OrderedIngredients"]').each(function () {
+                if ($(this).val() === name) {
+                    exists = true;
+                    return;
+                }
+            });
+            return exists;
+        }
+
+        function addIngredientNewRow(rowIndex, id, name, quantity, unit) {
+            let newRow = `
+                                    <tr>
+                                        <td>
+                                            <input type="hidden" name="ReceiveViewModel.OrderedIngredients[${rowIndex}].IngredientId" value="${id}">
+                                            <input type="text" name="ReceiveViewModel.OrderedIngredients[${rowIndex}].Name" class="form-control-sm form-control text-center" value="${name}" readonly>
+                                        </td>
+                                        <td>
+                                            <input type="number" name="ReceiveViewModel.OrderedIngredients[${rowIndex}].Quantity" class="form-control-sm form-control text-center" value="${quantity}" readonly>
+                                        </td>
+                                        <td>
+                                            <input type="text" name="ReceiveViewModel.OrderedIngredients[${rowIndex}].Unit" class="form-control-sm form-control text-center" value="${unit}" readonly>
+                                        </td>
+                                        <td>
+                                            <button type="button" class="btn btn-danger btn-sm bg-danger delete-ingredient-btn">Discard</button>
+                                        </td>
+                                    </tr>
+                                `;
+            $('table tbody').append(newRow);
+        }
+
+        function addIngredientExistingRow(name, quantity) {
+            $('tbody tr').each(function () {
+                let quantityField = $(this).find('input[type=number]');
+
+                if ($(this).find('input[name*="Name"]').val() === name) {
+                    quantityField.val(parseInt(quantityField.val()) + parseInt(quantity));
+                }
+            });
+        }
+
+        $('select[name="ingredientName"]').on('change', function () {
+            let selectedIngredient = $(this).find(':selected').text();
+
+            if (selectedIngredient.indexOf('Select Ingredient') !== -1) {
+                $('input[name="ingredientUnit"]').val('');
+                return;
+            }
+
+            $.ajax({
+                type: "GET",
+                url: `/Ingredient/GetIngredientUnit?ingredient=${selectedIngredient}`,
+                success: (response) => {
+                    $('input[name="ingredientUnit"]').val(response);
+                },
+                error: (error) => {
+                    console.error(`Error: ${error}`);
+                }
+            });
+        });
+    </script>
+
+    <partial name="_ValidationScriptsPartial" />
+}

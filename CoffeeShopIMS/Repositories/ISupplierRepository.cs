@@ -10,4 +10,6 @@ public interface ISupplierRepository
     public Supplier? GetById(int id);
     public void Update(Supplier supplier);
     public void Delete(Supplier supplier);
+    public void CommitChanges();
+    public Supplier FindByName(string name);
 }
