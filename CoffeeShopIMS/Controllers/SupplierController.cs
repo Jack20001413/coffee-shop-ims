@@ -1,21 +1,21 @@
+using CoffeeShopIMS.Data;
 using CoffeeShopIMS.Models;
-using CoffeeShopIMS.Repositories;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace CoffeeShopIMS.Controllers
 {
     public class SupplierController : Controller
     {
-        private readonly ISupplierRepository _supplierRepository;
-
-        public SupplierController(ISupplierRepository supplierRepository)
+        private readonly ApplicationDbContext _context;
+        public SupplierController(ApplicationDbContext context)
         {
-            _supplierRepository = supplierRepository;
+            _context = context;
         }
 
         public IActionResult Index()
         {
-            List<Supplier> suppliers = _supplierRepository.GetAll();
+            var suppliers = _context.Suppliers.AsNoTracking().ToList();
             return View(suppliers);
         }
 
@@ -29,37 +29,52 @@ namespace CoffeeShopIMS.Controllers
         {
             supplier.CreatedAt = DateTime.Now;
             supplier.UpdatedAt = DateTime.Now;
-            _supplierRepository.Create(supplier);
+
+            _context.Suppliers.Add(supplier);
+            _context.SaveChanges();
 
             return RedirectToAction(nameof(Index));
         }
 
         public IActionResult Edit(int id)
         {
-            var supplier = _supplierRepository.GetById(id);
+            var supplier = _context.Suppliers.SingleOrDefault(s => s.Id == id);
 
-            if (supplier is null) return NotFound();
+            if (supplier is null)
+            {
+                return NotFound($"Supplier with ID {id} not found");
+            }
+
             return View(supplier);
         }
 
         [HttpPost]
         public IActionResult Edit(Supplier supplier)
         {
-            if (!ModelState.IsValid) return View(supplier);
+            if (!ModelState.IsValid)
+            {
+                return View(supplier);
+            }
 
             supplier.UpdatedAt = DateTime.Now;
-            _supplierRepository.Update(supplier);
+
+            _context.Suppliers.Update(supplier);
+            _context.SaveChanges();
 
             return RedirectToAction(nameof(Index));
         }
 
         public IActionResult Delete(int id)
         {
-            var supplier = _supplierRepository.GetById(id);
+            var supplier = _context.Suppliers.SingleOrDefault(s => s.Id == id);
 
-            if (supplier is null) return NotFound();
+            if (supplier is null)
+            {
+                return NotFound($"Supplier with ID {id} not found");
+            }
 
-            _supplierRepository.Delete(supplier);
+            _context.Suppliers.Remove(supplier);
+            _context.SaveChanges();
 
             return RedirectToAction(nameof(Index));
         }
