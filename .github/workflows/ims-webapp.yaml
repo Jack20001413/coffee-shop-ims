@@ -8,8 +8,6 @@ on:
   workflow_dispatch:
 
 env:
-  AZURE_WEBAPP_NAME: cs-ims-sea-dev-wa
-  AZURE_WEBAPP_PACKAGE_PATH: "."
   DOTNET_VERSION: "9.x.x"
 
 permissions:
@@ -73,40 +71,14 @@ jobs:
           include-hidden-files: true
 
   deploy:
-    name: Deploy application
-    runs-on: ubuntu-latest
-    permissions:
-      id-token: write
-      contents: none
-    environment: DEV
+    name: Deploy application to DEV
+    uses: Jack20001413/github-workflow-templates/.github/workflows/deploy-azure-webapp.yaml@main
+    with:
+      web-app-name: ${{ vars.WEB_APP_NAME }}
+      environment: 'DEV'
+      package-name: 'dotnet-app'
+      package-path: "."
     needs:
       - build
       - test
-    steps:
-      - name: Download pipeline artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: dotnet-app
-
-      - name: Check if secret is environment secret
-        run: |
-          if [[ "$IS_ENV_SECRET" == "true" ]]; then
-           echo "This is environment secret"
-          else
-           echo "This is repository secret"
-          fi
-        env:
-          IS_ENV_SECRET: ${{ secrets.IS_ENV_SECRET }}
-
-      - name: Login to Azure
-        uses: azure/login@v2.3.0
-        with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-
-      - name: Deploy to Azure WebApp
-        uses: azure/webapps-deploy@v2
-        with:
-          app-name: ${{ env.AZURE_WEBAPP_NAME }}
-          package: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+    secrets: inherit
