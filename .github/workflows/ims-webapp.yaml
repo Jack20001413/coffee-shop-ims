@@ -72,6 +72,9 @@ jobs:
 
   deploy:
     name: Deploy application to DEV
+    permissions:
+      id-token: write
+      contents: none
     uses: Jack20001413/github-workflow-templates/.github/workflows/deploy-azure-webapp.yaml@main
     with:
       web-app-name: ${{ vars.WEB_APP_NAME }}
