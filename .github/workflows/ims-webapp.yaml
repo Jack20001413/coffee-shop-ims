@@ -49,6 +49,7 @@ jobs:
         with:
           clean: true
 
+      # This is an attempt to centralize common sets of actions in a template repo. Because GitHub does not support creating templates for actions yet, so I have to make this workaround to allow centralizing action templates.
       - name: Checkout template repository
         uses: actions/checkout@v5
         with:
