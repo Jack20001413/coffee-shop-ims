@@ -23,13 +23,17 @@ jobs:
         with:
           clean: true
 
-      - name: Install .NET Core SDK
-        uses: actions/setup-dotnet@v4
+      - name: Checkout template repository
+        uses: actions/checkout@v5
         with:
-          dotnet-version: ${{ env.DOTNET_VERSION }}
+          repository: Jack20001413/github-workflow-templates
+          ref: main
+          path: .github/templates
 
-      - name: Restore project's dependencies
-        run: dotnet restore ${{ github.workspace }}/CoffeeShopIMS.Test --no-cache
+      - uses: ./.github/templates/.github/actions/dotnet-restore
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION}}
+          project-directory: ${{ github.workspace }}/CoffeeShopIMS
 
       - name: Run unit tests
         run: dotnet test ${{ github.workspace }}/CoffeeShopIMS.Test --no-restore --logger trx --results-directory ${{ github.workspace }}/CoffeeShopIMS.Test/TestResults
