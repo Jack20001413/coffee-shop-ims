@@ -44,6 +44,11 @@ jobs:
     name: Build application
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          clean: true
+
       - name: Checkout template repository
         uses: actions/checkout@v5
         with:
