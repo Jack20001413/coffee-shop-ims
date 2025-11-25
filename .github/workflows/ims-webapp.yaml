@@ -44,18 +44,17 @@ jobs:
     name: Build application
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
+      - name: Checkout template repository
         uses: actions/checkout@v5
         with:
-          clean: true
+          repository: Jack20001413/github-workflow-templates
+          ref: main
+          path: .github/templates
 
-      - name: Install .NET Core SDK
-        uses: actions/setup-dotnet@v4
+      - uses: ./.github/templates/.github/actions/dotnet-restore
         with:
-          dotnet-version: ${{ env.DOTNET_VERSION }}
-
-      - name: Restore project's dependencies
-        run: dotnet restore ${{ github.workspace }}/CoffeeShopIMS --no-cache
+          dotnet-version: ${{ env.DOTNET_VERSION}}
+          project-directory: ${{ github.workspace }}/CoffeeShopIMS
 
       - name: Build project
         run: dotnet build ${{ github.workspace }}/CoffeeShopIMS --no-restore -c Release
