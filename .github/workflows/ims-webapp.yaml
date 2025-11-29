@@ -38,6 +38,14 @@ jobs:
       - name: Run unit tests
         run: dotnet test ${{ github.workspace }}/CoffeeShopIMS.Test --no-restore --logger trx --results-directory ${{ github.workspace }}/CoffeeShopIMS.Test/TestResults
 
+      - name: Report test results
+        uses: dorny/test-reporter@v2
+        if: ${{ !cancelled() }}
+        with:
+          name: Unit Tests
+          path: ${{ github.workspace }}/CoffeeShopIMS.Test/TestResults/*.trx
+          reporter: dotnet-trx
+
       - name: Upload test results
         uses: actions/upload-artifact@v4
         with:
