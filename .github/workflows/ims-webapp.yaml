@@ -34,8 +34,8 @@ jobs:
 
       - uses: ./templates/.github/actions/dotnet-restore
         with:
-          dotnet-version: ${{ env.DOTNET_VERSION}}
-          project-directory: ${{ github.workspace }}/CoffeeShopIMS
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+          project-directory: ${{ github.workspace }}/CoffeeShopIMS.Test
 
       - name: Run unit tests
         run: dotnet test ${{ github.workspace }}/CoffeeShopIMS.Test --no-restore --logger trx --results-directory ${{ github.workspace }}/CoffeeShopIMS.Test/TestResults
