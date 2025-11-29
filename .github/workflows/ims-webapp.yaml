@@ -39,7 +39,7 @@ jobs:
         run: dotnet test ${{ github.workspace }}/CoffeeShopIMS.Test --no-restore --logger trx --results-directory ${{ github.workspace }}/CoffeeShopIMS.Test/TestResults
 
       - name: Debug test result directory
-        run: ls -aR ${{ github.workspace }}/CoffeeShopIMS.Test/TestResults
+        run: ls -aR ${{ github.workspace }}/CoffeeShopIMS.Test
 
       # - name: Report test results
       #   uses: dorny/test-reporter@v2
