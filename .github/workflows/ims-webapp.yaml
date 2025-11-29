@@ -28,9 +28,9 @@ jobs:
         with:
           repository: Jack20001413/github-workflow-templates
           ref: main
-          path: .github/templates
+          path: templates
 
-      - uses: ./.github/templates/.github/actions/dotnet-restore
+      - uses: ./templates/.github/actions/dotnet-restore
         with:
           dotnet-version: ${{ env.DOTNET_VERSION}}
           project-directory: ${{ github.workspace }}/CoffeeShopIMS
@@ -59,9 +59,9 @@ jobs:
         with:
           repository: Jack20001413/github-workflow-templates
           ref: main
-          path: .github/templates
+          path: templates
 
-      - uses: ./.github/templates/.github/actions/dotnet-restore
+      - uses: ./templates/.github/actions/dotnet-restore
         with:
           dotnet-version: ${{ env.DOTNET_VERSION}}
           project-directory: ${{ github.workspace }}/CoffeeShopIMS
