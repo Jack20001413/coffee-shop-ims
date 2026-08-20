@@ -1,4 +1,6 @@
 using CoffeeShopIMS.Data;
+using CoffeeShopIMS.Interfaces;
+using CoffeeShopIMS.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,6 +12,7 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<ApplicationDbContext>(
     options => options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
 
+builder.Services.AddScoped<IOrderService, OrderService>();
 
 var app = builder.Build();
 

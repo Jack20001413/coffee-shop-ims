@@ -3,38 +3,43 @@ using CoffeeShopIMS.Models;
 using CoffeeShopIMS.Utils;
 using CoffeeShopIMS.ViewModels;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 
 namespace CoffeeShopIMS.Controllers;
 
 public class OrderController : Controller
 {
     private readonly ApplicationDbContext _context;
+    private const int PAGE_SIZE = 10;
 
     public OrderController(ApplicationDbContext context)
     {
         _context = context;
     }
 
-    public IActionResult Index()
+    public IActionResult Index(int currentPage = 0)
     {
-        var orders = _context.PurchaseOrders.AsNoTracking().ToList();
-        return View(orders);
+        int nextPage = currentPage + 1;
+
+        var orders = _context.PurchaseOrders
+            .AsNoTracking()
+            .OrderBy(o => o.CreationDate)
+            .Where(o => o.Id <= (nextPage * PAGE_SIZE) && o.Id > (currentPage * PAGE_SIZE))
+            .Take(PAGE_SIZE)
+            .ToList();
+
+        var model = new OrderHistoryViewModel
+        {
+          Orders = orders,
+          OrderCount = _context.PurchaseOrders.Count()
+        };
+
+        return View(model);
     }
 
     public IActionResult Create()
     {
-        var model = new PurchaseRequestViewModel
-        {
-            LoadViewModel = new PurchaseRequestLoadViewModel
-            {
-                Ingredients = new SelectList(_context.Ingredients.AsNoTracking().ToList(), nameof(Ingredient.Id), nameof(Ingredient.Name)),
-                Vendors = new SelectList(_context.Suppliers.AsNoTracking().ToList(), nameof(Supplier.Id), nameof(Supplier.Name)),
-                Warehouses = new SelectList(_context.Warehouses.AsNoTracking().ToList(), nameof(Warehouse.Id), nameof(Warehouse.Address))
-            }
-        };
+        var model = new PurchaseRequestViewModel(_context);
         return View(model);
     }
 
@@ -48,20 +53,9 @@ public class OrderController : Controller
 
         var receivedData = data.ReceiveViewModel;
 
-        if (receivedData.OrderedIngredients.IsNullOrEmpty())
-        {
-            ModelState.AddModelError("ReceiveViewModel.OrderedIngredients", "At least one ingredient must be ordered");
-        }
-
         if (!ModelState.IsValid)
         {
-            data.LoadViewModel = new PurchaseRequestLoadViewModel
-            {
-                Ingredients = new SelectList(_context.Ingredients.AsNoTracking().ToList(), nameof(Ingredient.Id), nameof(Ingredient.Name)),
-                Vendors = new SelectList(_context.Suppliers.AsNoTracking().ToList(), nameof(Supplier.Name), nameof(Supplier.Name)),
-                Warehouses = new SelectList(_context.Warehouses.AsNoTracking().ToList(), nameof(Warehouse.Id), nameof(Warehouse.Address))
-            };
-            return View(data);
+            data.LoadViewModel = new PurchaseRequestLoadViewModel().LoadData(_context);
         }
 
         var supplier = _context.Suppliers.SingleOrDefault(s => s.Id == receivedData.SupplierId);
@@ -96,5 +90,26 @@ public class OrderController : Controller
         _context.SaveChanges();
 
         return RedirectToAction(nameof(Index));
+    }
+
+    public IActionResult Filter(string orderPerson, DateOnly creationDate, string status, int currentPage)
+    {
+        int nextPage = currentPage++;
+        var orders = _context.PurchaseOrders
+            .AsNoTracking()
+            .Where(o => o.OrderPerson == orderPerson)
+            .Where(o => o.CreationDate == creationDate)
+            .Where(o => o.Status == status)
+            .OrderBy(o => o.CreationDate)
+            .Where(o => o.Id <= (nextPage * PAGE_SIZE) && o.Id > (currentPage * PAGE_SIZE))
+            .Take(PAGE_SIZE)
+            .ToList();
+
+        return View(nameof(GetOrderHistoryTablePartial), orders);
+    }
+
+    public IActionResult GetOrderHistoryTablePartial(OrderHistoryViewModel orderHistory)
+    {
+        return PartialView("_OrderHistoryTable", orderHistory);
     }
 }

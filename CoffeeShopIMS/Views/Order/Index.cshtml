@@ -1,23 +1,49 @@
-﻿@{
+﻿@using CoffeeShopIMS.ViewModels
+@{
     ViewData["Title"] = "Purchase Orders";
 }
-@model List<PurchaseOrder>
+@model OrderHistoryViewModel
 
+@* Header *@
 <div class="container">
     <div class="row pt-4">
-        <div class="col-3 mx-auto pt-2 text-center">
+        <div class="col-6 mx-auto pt-2 text-center">
             <h2>Purchase Request History</h2>
         </div>
     </div>
-    <div class="row pt-4">
+    <div class="row pt-4 mb-4">
         <div class="col-6">
             <a class="btn btn-primary" asp-controller="Order" asp-action="Create">Make a request</a>
         </div>
     </div>
-    <div class="row pt-2"></div>
 </div>
 
-@if (Model.Count == 0)
+@* Filter box *@
+<div class="card mb-4">
+    <div class="card-body">
+        <div class="row mb-3">
+            <div class="col">
+                <label class="form-label">Order maker</label>
+                <input class="form-control" type="text" name="OrderMaker" id="">
+            </div>
+            <div class="col">
+                <label class="form-label">Creation date</label>
+                <input class="form-control" type="date" name="CreationDate" id="">
+            </div>
+            <div class="col">
+                <label class="form-label">Status</label>
+                <input class="form-control" type="text" name="Status" id="">
+            </div>
+        </div>
+        <div class="d-flex justify-content-end gap-2">
+            <button type="button" class="btn btn-primary" id="filterButton">Apply</button>
+            <button type="button" class="btn btn-danger" id="clearButton">Clear</button>
+        </div>
+    </div>
+</div>
+
+@* Purchase history table *@
+@if (Model.Orders.Count() == 0)
 {
     <div class="row pt-10">
         <div class="text-center mx-auto pt-4">
@@ -27,32 +53,62 @@
 }
 else
 {
-    <div class="table-responsive">
-        <table class="table table-striped table-hover">
-            <thead>
-                <tr>
-                    <th>Bill number</th>
-                    <th>Procurement maker</th>
-                    <th>Purchased at</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var order in Model)
-                {
-                    <tr>
-                        <td>@order.OrderNumber</td>
-                        <td>@order.OrderPerson</td>
-                        <td>@order.CreationDate</td>
-                        <td>
-                            <a asp-controller="OrderDetail" asp-action="Index" asp-route-id="@order.Id"
-                               class="btn btn-secondary btn-sm">Show details</a>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    </div>
+    <partial name="_OrderHistoryTable" model="Model" />
+    <nav class="d-flex justify-content-center" aria-label="Purchase order history">
+        <ul class="pagination">
+            <li class="page-item">
+                <a href="#" class="page-link" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+            <li class="page-item"><a href="#" class="page-link">1</a></li>
+            <li class="page-item"><a href="#" class="page-link">2</a></li>
+            <li class="page-item"><a href="#" class="page-link">3</a></li>
+            <li class="page-item">
+                <a href="#" class="page-link" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
 }
 
+@section Scripts {
+    <script>
+        $("#clearButton").click(() => {
+            $("input[name='OrderMaker']").val("");
+            $("input[name='CreationDate']").val("");
+            $("input[name='Status']").val("");
+        });
 
+        $("#filterButton").click(() => {
+            const orderPerson = $("input[name='OrderMaker']").val();
+            const creationDate = $("input[name='CreationDate']").val();
+            const status = $("input[name='Status']").val();
+
+            const currentPage = 1;
+            const nextPage = 2;
+
+            const url = `/Order/Filter?orderPerson=${orderPerson}&creationDate=${creationDate}&status=${status}&currentPage=${currentPage}&nextPage=${nextPage}`;
+
+            $.ajax({
+                url: url,
+                type: "GET",
+                success: (data) => {
+                    console.info("Filter applied successfully");
+
+                    try {
+                        data = JSON.parse(data);
+                        console.log(data);
+                    } catch (e) {
+                        console.error("Error parsing JSON response", e);
+                        return;
+                    }
+                },
+                error: (err) => {
+                    console.error("Error applying filter", err);
+                }
+            })
+        });
+    </script>
+}
